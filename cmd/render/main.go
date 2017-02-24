@@ -10,6 +10,7 @@ import (
     "math"
 
     "github.com/wcharczuk/go-chart"
+    "github.com/wcharczuk/go-chart/drawing"
 
     . "github.com/arnehilmann/goutils"
 )
@@ -66,16 +67,38 @@ func main() {
     log.Println("assembling graph")
 
     graph := chart.Chart{
+        Width: 400,
+        Height: 200,
         XAxis: chart.XAxis{
             Style: chart.Style{
                 Show: true,
             },
-            ValueFormatter: chart.TimeHourValueFormatter,
+            ValueFormatter: func (v interface{}) string {
+                return chart.TimeValueFormatterWithFormat(v, "2006-01-02T15:04")},
+        },
+        YAxis: chart.YAxis{
+            Style: chart.Style{
+                Show: true,
+            },
+            ValueFormatter: func (v interface{}) string {
+                return chart.FloatValueFormatterWithFormat(v, "%0.1f")},
+            Ticks: []chart.Tick{
+                chart.Tick{4.0, "4"},
+                chart.Tick{6.0, "6"},
+                chart.Tick{7.0, "7"},
+                chart.Tick{14.0, "14"},
+            },
         },
         Series: []chart.Series{
             chart.TimeSeries{
+                Name: timelines[0].name,
                 XValues: timelines[0].epochs,
                 YValues: timelines[0].values,
+                Style: chart.Style{
+                    Show: true,
+                    StrokeWidth: 5.0,
+                    StrokeColor: drawing.Color{255, 0, 0, 255},
+                },
             },
         },
     }
