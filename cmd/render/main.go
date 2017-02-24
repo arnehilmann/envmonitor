@@ -3,11 +3,13 @@ package main
 import (
     "log"
     "os/exec"
+    "os"
     "strconv"
     "strings"
     "time"
+    "math"
 
-    //"github.com/wcharczuk/go-chart"
+    "github.com/wcharczuk/go-chart"
 
     . "github.com/arnehilmann/goutils"
 )
@@ -44,9 +46,12 @@ func main() {
         epoch, err := strconv.Atoi(strings.TrimSuffix(fields[0], ":"))
         PanicIf(err)
         for index, field := range(fields[1:]) {
-            timelines[index].epochs = append(timelines[index].epochs, time.Unix(int64(epoch), 0))
             value, err := strconv.ParseFloat(field, 32)
             PanicIf(err)
+            if math.IsNaN(value) {
+                continue
+            }
+            timelines[index].epochs = append(timelines[index].epochs, time.Unix(int64(epoch), 0))
             timelines[index].values = append(timelines[index].values, float64(value))
         }
     }
@@ -57,4 +62,30 @@ func main() {
         }
         break
     }
+
+    log.Println("assembling graph")
+
+    graph := chart.Chart{
+        XAxis: chart.XAxis{
+            Style: chart.Style{
+                Show: true,
+            },
+            ValueFormatter: chart.TimeHourValueFormatter,
+        },
+        Series: []chart.Series{
+            chart.TimeSeries{
+                XValues: timelines[0].epochs,
+                YValues: timelines[0].values,
+            },
+        },
+    }
+    err = graph.Series[0].Validate()
+    PanicIf(err)
+
+    f, err := os.Create("aha.png")
+    PanicIf(err)
+    defer f.Close()
+    graph.Render(chart.PNG, f)
+
+    log.Println("done")
 }
