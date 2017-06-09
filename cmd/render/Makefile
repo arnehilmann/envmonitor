@@ -1,7 +1,11 @@
+FLAGS=-ldflags -s
+
+TARGETS=install build
+
 all:	run
 
-run:	build
-	./render
+run:	install
+	render
 
-build:
-	go build -ldflags -s
+$(TARGETS):
+	go $@ $(FLAGS)
