@@ -2,17 +2,17 @@ package main
 
 import (
 	"log"
-    "math"
-    "os"
-    "path/filepath"
+	"math"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/ziutek/rrd"
 
-    "github.com/wcharczuk/go-chart"
-    "github.com/wcharczuk/go-chart/drawing"
+	"github.com/wcharczuk/go-chart"
+	"github.com/wcharczuk/go-chart/drawing"
 
-    "github.com/arnehilmann/go-chart-contrib"
+	"github.com/arnehilmann/go-chart-contrib"
 
 	. "github.com/arnehilmann/goutils"
 )
@@ -56,10 +56,10 @@ func DecodeRrd(filename, fun, start, end string) ([]Timeline, error) {
 		for t := 0; t < result.RowCnt; t++ {
 			ts = result.Start.Add(time.Duration(t) * result.Step)
 			value := result.ValueAt(i, t)
-            if ! math.IsNaN(value) {
-                timelines[i].epochs = append(timelines[i].epochs, ts)
-                timelines[i].values = append(timelines[i].values, value)
-            }
+			if !math.IsNaN(value) {
+				timelines[i].epochs = append(timelines[i].epochs, ts)
+				timelines[i].values = append(timelines[i].values, value)
+			}
 		}
 	}
 	return timelines, nil
@@ -73,23 +73,23 @@ func (timeline Timeline) Dump(fun func(...interface{})) {
 }
 
 func main() {
-    log.Println("ahhh")
+	log.Println("ahhh")
 	timelines, err := DecodeRrd("res/temperature.rrd",
 		"AVERAGE",
 		"2017-02-22",
 		"2017-02-24")
 	PanicIf(err)
-    log.Println("--------------------")
-    timelines[0].Dump(log.Println)
-    /*
-    for _, timeline := range timelines {
-        timeline.Dump(log.Println)
-    }
-    */
+	log.Println("--------------------")
+	timelines[0].Dump(log.Println)
+	/*
+	   for _, timeline := range timelines {
+	       timeline.Dump(log.Println)
+	   }
+	*/
 
-    linespacing := 5.0
+	linespacing := 5.0
 
-    c := chart.Chart{
+	c := chart.Chart{
 		Width:  800,
 		Height: 600,
 		XAxis: chart.XAxis{
@@ -121,10 +121,10 @@ func main() {
 			},
 		},
 	}
-    filename := filepath.Join(os.TempDir(), "envmonitor-test.png")
-    f, err := os.Create(filename)
-    PanicIf(err)
-    defer f.Close()
-    c.Render(chart.PNG, f)
-    log.Println("chart can be found in", f.Name())
+	filename := filepath.Join(os.TempDir(), "envmonitor-test.png")
+	f, err := os.Create(filename)
+	PanicIf(err)
+	defer f.Close()
+	c.Render(chart.PNG, f)
+	log.Println("chart can be found in", f.Name())
 }
